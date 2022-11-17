@@ -159,7 +159,36 @@ From the plot, when the true mu increases, the proportion of times the null was 
 
 * Make a plot showing the average estimate of μ̂  on the y axis and the true value of μ on the x axis. 
 
+```{r}
+# first summary the average estimate of mu and then make a plot
+results_df %>% 
+  group_by(true_mu) %>%
+  summarize(avg_estimate = mean(estimate)) %>% 
+  ggplot(aes(x = true_mu, y = avg_estimate)) + 
+  geom_point() +
+  labs(
+    title = "Average Estimate of Mu V.S. True Mu",
+    x = "True Mu",
+    y = "Average Estimate of Mu"
+  )
+```
+
 *Make a second plot (or overlay on the first) the average estimate of μ̂  only in samples for which the null was rejected on the y axis and the true value of μ on the x axis. Is the sample average of μ̂  across tests for which the null is rejected approximately equal to the true value of μ? Why or why not?
 
+```{r}
+# first summary the average estimate of mu only the null was rejected
+# and then make a plot
+results_df %>% 
+  filter(p.value < 0.05) %>% 
+  group_by(true_mu) %>%
+  summarize(avg_estimate = mean(estimate)) %>% 
+  ggplot(aes(x = true_mu, y = avg_estimate)) + 
+  geom_point() +
+  labs(
+    title = "Average Estimate of Mu V.S. True Mu Only The Null Was Rejected",
+    x = "True Mu",
+    y = "Average Estimate of Mu"
+  )
+```
 
-
+For the first plot that we include all the dataset, we can see that the sample average mu is approximately equal to the true mu. However, in the second plot, which only include **samples for which the null was rejected**, the sample average mu is not always approximately equal to the true mu. When the true mu increases, like 4, 5, 6, the sample average mus are very close to the true mu. But when the true mu is around 1, 2, the sample average mus are not approximately equal to the true mu. This result goes along with previous plot. Since when effect size is small, we cannot easily reject the null, and in the rejected samples, a small effect size means a little difference on mu will result in the difference of average mu and true mu.
