@@ -46,10 +46,62 @@ homicide_data <- homicide_data %>%
 homicide_data %>% 
   select(uid, city, state, city_state)
 # summarize
-homicide_data %>% 
+homicide_data_summary <- homicide_data %>% 
   mutate(unsolved = ifelse(disposition == "Closed by arrest", FALSE, TRUE)) %>% 
   group_by(city_state) %>% 
   summarize(n_homicides = n(),
             n_unsolved = sum(unsolved))
+homicide_data_summary
 ```
+
+* For city Baltimore, MD, estimate the proportion of unsolved homicides, save as an R object and use broom::tidy, and pull out the result.
+
+```{r}
+# apply the prop test to the Baltimore, MD
+prop_test_Bal_MD <- homicide_data_summary %>% 
+  filter(city_state == "Baltimore, MD") %>% 
+  mutate(prop_test = map2(n_unsolved, n_homicides, ~ prop.test(.x, .y) %>% 
+                          broom::tidy())) %>% 
+  select(prop_test) %>% 
+  unnest()
+# pull the result
+prop_test_Bal_MD[c("estimate", "conf.low", "conf.high")]
+```
+
+* Run the prop.test for each city
+
+```{r}
+# apply the prop test to each city
+prop_test_each_city <- homicide_data_summary %>% 
+  mutate(prop_test = map2(n_unsolved, n_homicides, ~ prop.test(.x, .y) %>% 
+                          broom::tidy())) %>% 
+  unnest()
+# select and tidy the result
+prop_test_each_city %>% 
+  select(city_state, estimate, conf.low, conf.high)
+```
+
+* Create a plot that shows the estimates and CIs for each city
+
+```{r}
+each_city_estimate <- prop_test_each_city %>% 
+  select(city_state, estimate, conf.low, conf.high)
+each_city_estimate %>% 
+  ggplot(aes(x = fct_reorder(city_state, estimate, max), y = estimate, color = city_state)) + 
+  geom_errorbar(aes(ymin = conf.low, ymax = conf.high)) +
+  labs(
+    title = "Estimate Homicide Propotion And CI For Each City",
+    x = "City And State",
+    y = "Estimate Homicide Prop and CI"
+  )
+```
+
+
+
+
+
+
+
+
+
 
