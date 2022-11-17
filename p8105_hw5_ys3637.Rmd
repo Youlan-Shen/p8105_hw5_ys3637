@@ -120,7 +120,7 @@ muhat_p_value <- function(n = 30, mu, sigma = 5) {
 * If Generate 5000 dataset from the model, their mu estimates and p.values
 
 ````{r}
-rerun(50, muhat_p_value(mu = 0)) %>%
+rerun(5000, muhat_p_value(mu = 0)) %>%
         bind_rows
 ```
 
@@ -131,7 +131,7 @@ rerun(50, muhat_p_value(mu = 0)) %>%
 results_df <-
   tibble(true_mu = c(1, 2, 3, 4, 5, 6)) %>% 
   mutate(
-    output_lists = map(.x = true_mu, ~rerun(50, muhat_p_value(mu = .x))),
+    output_lists = map(.x = true_mu, ~rerun(5000, muhat_p_value(mu = .x))),
     estimate_dfs = map(output_lists, bind_rows)) %>% 
   select(-output_lists) %>% 
   unnest(estimate_dfs)
@@ -145,7 +145,7 @@ results_df
 results_df %>% 
   mutate(reject = ifelse(p.value < 0.05, TRUE, FALSE)) %>% 
   group_by(true_mu) %>%
-  summarize(prop_reject_null = sum(reject) / 50) %>% 
+  summarize(prop_reject_null = sum(reject) / 5000) %>% 
   ggplot(aes(x = true_mu, y = prop_reject_null)) + 
   geom_point() +
   labs(
