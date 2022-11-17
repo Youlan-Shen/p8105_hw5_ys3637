@@ -9,8 +9,8 @@ output: github_document
 ```{r}
 # library all packages that we need at the beginning
 library(tidyverse)
-library(ggridges)
-library(patchwork)
+
+set.seed(1)
 
 # default set up
 theme_set(theme_minimal() + theme(legend.position = "bottom"))
@@ -95,6 +95,8 @@ each_city_estimate %>%
     y = "Estimate Homicide Prop and CI"
   )
 ```
+
+## Problem 3
 
 
 
